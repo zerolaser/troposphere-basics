@@ -118,8 +118,9 @@ ApiSubnet1 = t.add_parameter(Parameter(
 
 LaunchConfiguration = t.add_resource(LaunchConfiguration(
     "LaunchConfiguration",
+   #Type="AWS::AutoScaling::LaunchConfiguration",
     ImageId=Ref(AmiId),
-    KeyName=Ref(KeyName),
+    #KeyName=Ref(KeyName),
     BlockDeviceMappings=[
         ec2.BlockDeviceMapping(
             DeviceName="/dev/sda1",
@@ -130,10 +131,16 @@ LaunchConfiguration = t.add_resource(LaunchConfiguration(
 ],
 SecurityGroups=[Ref(SecurityGroup)],
 InstanceType="t2.micro",
+AssociatePublicIpAddress="false",
+DeletionPolicy="Delete",
+KeyName="b2bcfg",
+InstanceMonitoring="false"
 )) 
 
 LoadBalancer = t.add_resource(LoadBalancer(
 	"LoadBalancer",
+        DependsOn=[Ref(LaunchConfiguration)],
+        DeletionPolicy="Delete",
 	ConnectionDrainingPolicy=elb.ConnectionDrainingPolicy(
 	    Enabled=True,
 	    Timeout=120,
@@ -152,7 +159,7 @@ LoadBalancer = t.add_resource(LoadBalancer(
 	       InstancePort="80",
 	       Protocol="HTTPS",
                InstanceProtocol="HTTP",
-               SSLCertificateId=Ref(SSLCertificateId)
+               #SSLCertificateId=Ref(SSLCertificateId)
             ),
 	],
 	CrossZone=True,
@@ -163,7 +170,7 @@ LoadBalancer = t.add_resource(LoadBalancer(
 
 AutoScalingGroup = t.add_resource(AutoScalingGroup(
     "AutoscalingGroup",
-    DesiredCapacity=Ref(ScaleCapacity),
+    DeletionPolicy="Delete",
     Tags=[
 	 Tag("Environment",Ref(EnvType), True)
     ],
@@ -174,17 +181,6 @@ AutoScalingGroup = t.add_resource(AutoScalingGroup(
     LoadBalancerNames=[Ref(LoadBalancer)],
     AvailabilityZones=[Ref(VPCAvailabilityZone1), Ref(VPCAvailabilityZone2)],
     HealthCheckType="EC2",
-    UpdatePolicy=UpdatePolicy(
-        AutoScalingReplacingUpdate=AutoScalingReplacingUpdate(
-	    WillReplace=True,
-	),
-	AutoScalingRollingUpdate=AutoScalingRollingUpdate(
- 	    PauseTime='PT5M',
-	    MinInstancesInService="1",
-	    MaxBatchSize='1',
-	    WaitOnResourceSignals=True
-	)
-    )
 ))
 
 print(t.to_json())
