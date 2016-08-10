@@ -6,21 +6,10 @@
             "Description": "The AMI id for the api instances",
             "Type": "String"
         },
-        "ApiSubnet1": {
-            "Description": "First private VPC subnet ID for the api app.",
-            "Type": "String"
-        },
-        "ApiSubnet2": {
-            "Description": "Second private VPC subnet ID for the api app.",
-            "Type": "String"
-        },
-        "DeployUserSecretKey": {
-            "Description": "The secret key of the deploy user",
-            "Type": "String"
-        },
         "EnvType": {
             "Description": "The environment being deployed into",
-            "Type": "String"
+            "Type": "String",
+            "Default":"Dev"
         },
         "KeyName": {
             "AllowedPattern": "[ -~]*",
@@ -28,27 +17,23 @@
             "Description": "Name of an existing EC2 KeyPair to enable SSH access",
             "MaxLength": "255",
             "MinLength": "1",
-            "Type": "String"
+            "Type": "String",
+            "Default":"keypair"
         },
         "LoadBalancerSecurityGroup": {
             "Description": "Security group for api app load balancer.",
-            "Type": "String"
+            "Type": "String",
+            "Default":"sg-75544812"
         },
         "PublicSubnet1": {
             "Description": "A public VPC subnet ID for the api app load balancer.",
-            "Type": "String"
+            "Type": "String",
+            "Default":"subnet-2ebc014a"
         },
         "PublicSubnet2": {
             "Description": "A public VPC subnet ID for the api load balancer.",
-            "Type": "String"
-        },
-        "RootStackName": {
-            "Description": "The root stack name",
-            "Type": "String"
-        },
-        "SSLCertificateId": {
-            "Description": "SSL certificate for load balancer.",
-            "Type": "String"
+            "Type": "String",
+            "Default":"subnet-fa44938c"
         },
         "ScaleCapacity": {
             "Default": "1",
@@ -57,19 +42,23 @@
         },
         "SecurityGroup": {
             "Description": "Security group for api Instances.",
-            "Type": "String"
+            "Type": "String",
+            "Default":"sg-75544812"
         },
         "VPCAvailabilityZone1": {
             "Description": "First availability zone",
             "MaxLength": "255",
             "MinLength": "1",
-            "Type": "String"
+            "Type": "String",
+            "Default":"us-west-2a"
         },
         "VPCAvailabilityZone2": {
             "Description": "Second availability zone",
             "MaxLength": "255",
             "MinLength": "1",
-            "Type": "String"
+            "Type": "String",
+            "Default":"us-west-2b"
+
         }
     },
     "Resources": {
@@ -112,10 +101,10 @@
                 ],
                 "VPCZoneIdentifier": [
                     {
-                        "Ref": "ApiSubnet1"
+                        "Ref": "PublicSubnet1"
                     },
                     {
-                        "Ref": "ApiSubnet2"
+                        "Ref": "PublicSubnet2"
                     }
                 ]
             },
@@ -176,10 +165,7 @@
                         "InstancePort": "80",
                         "InstanceProtocol": "HTTP",
                         "LoadBalancerPort": "443",
-                        "Protocol": "HTTPS",
-                        "SSLCertificateId": {
-                            "Ref": "SSLCertificateId"
-                        }
+                        "Protocol": "HTTPS"
                     }
                 ],
                 "LoadBalancerName": "api-1b",
